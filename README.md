@@ -9,7 +9,7 @@ An implementation of an adaptive Least‑Mean‑Squares (LMS) estimator for sign
 
 ## Topic
 
-Graph signal processing (GSP) extends classical signal processing to data “living” on the nodes of a graph rather than on time or space. If a signal over a graph is **bandlimited**—i.e. its graph Fourier transform is nonzero only on a small set of eigen‑modes—then it can be reconstructed from samples at just a subset of vertices.  
+Graph signal processing (GSP) extends classical signal processing to data of the nodes of a graph rather than on time or space. If a signal over a graph is **bandlimited**—i.e. its graph Fourier transform is nonzero only on a small set of eigen‑nodes—then it can be reconstructed from samples at just a subset of vertices.  
 
 This project implements the **Adaptive LMS** strategy introduced by Di Lorenzo _et al._, which:  
 1. Assumes a bandlimited graph signal and noisy, streaming partial observations at a subset of nodes  
@@ -27,18 +27,21 @@ The core ideas and theoretical guarantees (mean‐square error bounds, sampling�
 
 - **Adaptive LMS Algorithm**  
   - Projected LMS recursion `x[n+1] = x[n] + μ · B D (y – x[n])` where  
-    - `B` projects onto the graph‐frequency support  
-    - `D` samples only selected vertices  
+      - `B`: Projects onto the graph‐frequency support, defined as
+          B = U . Σ_F . U^T
+        where:
+        - U : Graph Fourier basis (eigenvectors of the Laplacian)
+        - Σ_F : Diagonal matrix with ones at the frequency indices in the bandlimited set F, zeros elsewhere
+
+      - `D`: Samples only the selected vertices, defined as a **diagonal matrix** with:
+          -  D_{ii} = 1  if node i is selected for sampling
+          -  D_{ii} = 0  otherwise
+
   - Convergence checking with tolerance and maximum iterations  
 
 - **Greedy Sampling Strategies**  
-  - **Max‑λmin**: Selects the sampling set that **maximizes the minimum nonzero eigenvalue (λ₊ₘᵢₙ) of the matrix **B D B**, where:
-    - B = Graph Fourier basis restricted to the frequency support F
-    - D = Sampling matrix indicating the subset of selected vertices
-  - This surrogate criterion improves stability and convergence by ensuring the selected sampling set is well-conditioned for reconstruction.
-
-- **Adaptive Bandwidth Estimation**  
-  - Sampling‐set updated each iteration to match estimated bandwidth  
+  - **Max‑λmin**: Selects the sampling set that **maximizes the minimum nonzero eigenvalue (λ₊ₘᵢₙ) of the matrix B D B**
+  - This approach improves the reliability and accuracy of the algorithm by choosing a sampling set that makes the reconstruction process stable and well-behaved.
 
 - **Visualization & Results**  
   - Plotted estimated signal values over iterations and compared them with true signals to assess convergence
