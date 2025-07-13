@@ -170,6 +170,5 @@ def main():
     plot_results(df_iters, x0, nodes)
 
     plot_graph(A)
-
-if __name__ == "__main__":
-    main()
+    
+main()
